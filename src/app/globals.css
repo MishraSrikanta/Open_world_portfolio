@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#__next {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: #08080a;
+  color: #fafafa;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+canvas {
+  display: block;
+  outline: none;
+}
+
+/* In-world CSS3D TV screens: display only, never steal input */
+.tv-screen {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* Animated broadcast effects on the section-entry screens */
+@keyframes tvScan {
+  0% {
+    top: -16%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.7;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    top: 116%;
+    opacity: 0;
+  }
+}
+.tv-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 16%;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
+  animation: tvScan 4s linear infinite;
+  pointer-events: none;
+}
+@keyframes tvLivePulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.tv-live-dot {
+  animation: tvLivePulse 1.4s ease-in-out infinite;
+}
+
+/* Cozy game-style scrollbars for any interior panels */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+}
