@@ -50,17 +50,18 @@ export function useKeyboardMouse() {
       syncMove();
     };
 
-    // drag to rotate camera (left mouse button on the canvas)
+    // drag to rotate camera (left MOUSE button only — touch uses the on-screen
+    // look stick, so touch pointer events must never rotate the camera)
     let dragging = false;
     const onPointerDown = (e: PointerEvent) => {
-      if (e.button !== 0) return;
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
       dragging = true;
     };
     const onPointerUp = () => {
       dragging = false;
     };
     const onPointerMove = (e: PointerEvent) => {
-      if (!dragging) return;
+      if (!dragging || e.pointerType !== "mouse") return;
       input.lookX += e.movementX;
       input.lookY += e.movementY;
     };

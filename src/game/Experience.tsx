@@ -1,10 +1,10 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { Physics } from "@react-three/rapier";
-import { Preload, Stars, SoftShadows } from "@react-three/drei";
+import { Preload, Stars, SoftShadows, useProgress } from "@react-three/drei";
 import {
   EffectComposer,
   Bloom,
@@ -48,14 +48,56 @@ function usePausedFlag() {
 export function Experience() {
   const quality = useGame((s) => s.quality);
   const setReady = useGame((s) => s.setReady);
+  const setProgress = useGame((s) => s.setProgress);
   const physicsPaused = usePausedFlag();
   const scene = useThree((s) => s.scene);
 
+  // real asset-load progress (glTF, textures, materials via <Preload all/>)
+  const { active, progress, item } = useProgress();
+  const readyFired = useRef(false);
+
   useEffect(() => {
     scene.fog = new THREE.Fog("#cfe8ff", 60, 200);
-    const id = setTimeout(() => setReady(true), 250);
+  }, [scene]);
+
+  // surface live progress to the loading UI
+  useEffect(() => {
+    setProgress(Math.min(progress / 100, 1));
+  }, [progress, setProgress]);
+
+  // Enter the World only after loading finishes (loader idle at 100%), plus a
+  // couple of frames so the player/camera have settled and won't pop on entry.
+  useEffect(() => {
+    if (readyFired.current) return;
+    const done = !active && progress >= 100;
+    if (!done) return;
+    let raf = 0;
+    const id = setTimeout(() => {
+      // wait two animation frames for the first physics/camera step
+      raf = requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          readyFired.current = true;
+          setReady(true);
+        })
+      );
+    }, 200);
+    return () => {
+      clearTimeout(id);
+      cancelAnimationFrame(raf);
+    };
+  }, [active, progress, item, setReady]);
+
+  // Safety net: if no async assets ever register (loader stays idle), don't
+  // hang on the loading screen forever — reveal after a max wait.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      if (!readyFired.current) {
+        readyFired.current = true;
+        setReady(true);
+      }
+    }, 9000);
     return () => clearTimeout(id);
-  }, [scene, setReady]);
+  }, [setReady]);
 
   return (
     <>

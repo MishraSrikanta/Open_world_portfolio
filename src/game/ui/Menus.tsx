@@ -9,6 +9,7 @@ import { PROFILE } from "../content";
 export function StartScreen() {
   const started = useGame((s) => s.started);
   const ready = useGame((s) => s.ready);
+  const loadProgress = useGame((s) => s.loadProgress);
   const setStarted = useGame((s) => s.setStarted);
   const isTouch = useGame((s) => s.isTouch);
 
@@ -50,9 +51,11 @@ export function StartScreen() {
           sfx.init();
           setStarted(true);
         }}
-        className="mt-9 rounded-full bg-white px-10 py-4 font-display text-base font-bold text-ink-950 shadow-[0_0_40px_-8px_rgba(103,232,249,0.6)] transition hover:bg-accent-soft disabled:opacity-40 active:scale-95"
+        className="mt-9 rounded-full bg-white px-10 py-4 font-display text-base font-bold text-ink-950 shadow-[0_0_40px_-8px_rgba(103,232,249,0.6)] transition hover:bg-accent-soft disabled:cursor-not-allowed disabled:opacity-40 active:scale-95"
       >
-        {ready ? "Enter the World  →" : "Loading…"}
+        {ready
+          ? "Enter the World  →"
+          : `Loading… ${Math.round(loadProgress * 100)}%`}
       </motion.button>
 
       <a
